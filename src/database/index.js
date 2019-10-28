@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-var mongoDB = 'mongodb+srv://test:test@lanworkcustomers-gs23e.gcp.mongodb.net/test?retryWrites=true&w=majority';
+var mongoDB = 'mongodb+srv://test:test@lanworkcustomers-gs23e.gcp.mongodb.net/lanworkcustomers?retryWrites=true&w=majority';
 
 mongoose.connect(mongoDB, {useNewUrlParser: true});
 mongoose.connection.on('error', (err)=>{
