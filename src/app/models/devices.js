@@ -33,12 +33,7 @@ const DevicesSchema = new mongoose.Schema({
 
 })
 
-DevicesSchema.pre('save', async function(next){
-      const hash = await bcrypt.hash(this.password, 10);
-      this.password = hash;
-      next();
-});
 
-const Devices = mongoose.model('Devices', DevicesSchema);
+const User = mongoose.model('Devices', DevicesSchema);
 
 module.exports = Devices;
