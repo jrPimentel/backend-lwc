@@ -1,4 +1,4 @@
-const express = require('express');
+const  express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -62,6 +62,10 @@ router.post('/authenticate', async(req, res) => {
   } catch (err) {
     next(err);
   }
+});
+	
+router.get('/logout', function(req, res) {
+  res.status(200).send({token: null });
 });
 
 router.post('/forgot_password', async(req, res) =>{
@@ -128,6 +132,12 @@ router.post('/reset_password', async(req, res) => {
   }catch (err) {
     res.status(400).send({ error: 'Cannot reset password, try again'})
   }
+});
+
+router.get('/users', async(req, res) => {
+const users = await User.find().sort("-createdAt");
+return res.json(users);
+ 
 });
 
 
