@@ -10,6 +10,7 @@ const DeviceSchema = new mongoose.Schema({
 
   QRCode: {
     type: String,
+    required: false,
   },
   
   createdAt: {
