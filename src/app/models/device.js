@@ -6,11 +6,25 @@ const DeviceSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
-  QRCode: {
+  qrCode: {
     type: String,
     required: false,
     default: null,
+  },
+  qrState: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  company:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Company',
+    required: true,
+  },
+  user:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
   },
   
   createdAt: {

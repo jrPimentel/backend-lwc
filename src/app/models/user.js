@@ -3,11 +3,11 @@ const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
 
-  name: { 
+  userName: { 
     type: String,
     required: true,
   },
-  email: {
+  userEmail: {
     type: String,
     unique: true,
     required: true,
@@ -25,6 +25,11 @@ const UserSchema = new mongoose.Schema({
   passwordResetExpires:{
     type: Date,
     select: false,
+  },
+  company:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Company',
+    required: true,
   },
   createdAt: {
     type: Date,

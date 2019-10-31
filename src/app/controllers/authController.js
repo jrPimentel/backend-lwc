@@ -140,6 +140,4 @@ return res.json(users);
  
 });
 
-
-
 module.exports = app => app.use('/auth', router);
