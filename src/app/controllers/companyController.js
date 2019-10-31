@@ -21,9 +21,7 @@ router.use(authMiddleware);
   }),
   //add company 
   router.post('/company/add', async (req, res) => {
-
-    const { _id } = req.body;
-
+    //const { _id } = req.body;
     try {
 
       if (await Company.findOne({ _id })) return res.status(400).send({ error: 'Company already exists' });
