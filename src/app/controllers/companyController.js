@@ -1,19 +1,16 @@
 const express = require('express');
 const authMiddleware = require('../middlewares/auth');
-
 const Company = require('../models/company');
 const Device = require('../models/device');
-
 const router = express.Router();
 
 router.use(authMiddleware);
 
-//Listar todas.
+  //Listar todas.
   router.get('/', async (req, res) => {
-    const listCompanies = await Company.find().sort("-createdAt");
+    const listCompanies = await Company.find().sort("name");
     return res.json(listCompanies);
   }),
-  
   //Selecionar uma compania. 
   router.get('/:companyId', async (req, res) => {
     const { name } = req.body;
@@ -21,27 +18,22 @@ router.use(authMiddleware);
     return res.json(showCompanies);
   }),
   //add company 
-  router.post('/company/add', async (req, res) => {
-  
-    const { email } = req.body;
-    
+  router.post('/add', async (req, res) => {
+    const { email, name } = req.body;
     try{
-  
       if(await Company.findOne({ email })) return res.status(400).send({ error: 'Company already exists'});
-  
+      if(await Company.findOne({ name })) return res.status(400).send({ error: 'Company name already exists'});
+
       const company = await Company.create(req.body);
-  
-      company.password = undefined;
-  
-  
-      return res.send({ company,  token: generateToken({ id: company.id }), });
+      return res.send({company});
+
     } catch (err){
       return res.status(400).send({ error: 'Registration failed'})
       
     }
   
-  });
-//update company
+  }),
+  //update company
   router.put('/:companyId', async (req, res) => {
   res.send({ ok: true, company: req.companyId })
   }),
@@ -49,13 +41,4 @@ router.use(authMiddleware);
   router.delete('/:companyId', async (req, res) => {
     res.send({ ok: true, company: req.companyId })
   }),
-
   module.exports = app => app.use('/company', router);
-
-/*
-Lista antiga
-router.get('/companies', async(req, res) => {
-  const companies = await Company.find().sort("-createdAt");
-  return res.json(companies);
-
-  });*/

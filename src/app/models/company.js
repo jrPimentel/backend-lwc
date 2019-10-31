@@ -3,15 +3,15 @@ const bcrypt = require('bcryptjs');
 
 const CompanySchema = new mongoose.Schema({
   
-  companyName: { 
+  name: { 
     type: String,
     required: true,
   },
-  companyLocation: { 
+  location: { 
     type: String,
     required: false,
   },
-  adminEmail: {
+  email: {
     type: String,
     unique: true,
     required: true,
@@ -25,10 +25,12 @@ const CompanySchema = new mongoose.Schema({
   passwordResetToken:{
     type: String,
     select: false,
+    default: null,
   },
   passwordResetExpires:{
     type: Date,
     select: false,
+    default: null,
   },
   devices:[{
     type: mongoose.Schema.Types.ObjectId,

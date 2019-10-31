@@ -1,25 +1,17 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
-
-const authConfig = require('../../config/auth');
-
+const authMiddleware = require('../middlewares/auth');
 const Device = require('../models/device');
-
 const router = express.Router();
 
-function generateToken(params ={} ){
-  
-  return jwt.sign(params, authConfig.secret, {
-    expiresIn: 86400,
-  })
+router.use(authMiddleware);
 
-}
-
+//Lista todos os devices
 router.get('/devices', async(req, res) => {
   const devices = await Device.find().sort("-createdAt");
   return res.json(devices);
    
   });
+  //add device
 router.post('/devices/add', async (req, res) => {
   
     const { _id } = req.body;
@@ -39,5 +31,4 @@ router.post('/devices/add', async (req, res) => {
     }
   
   });
-
 module.exports = app => app.use('/auth', router);
