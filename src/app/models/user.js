@@ -34,12 +34,13 @@ const UserSchema = new mongoose.Schema({
   company:{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
-    required: true,
+    default: null,
+    select: false,
   },
   //Para tornar o user root.
-  acctype: {
+ accRoot: {
     type: Boolean,
-    default: false,
+    default: null,
     select: false,
   },
   //data de criação de conta. 
