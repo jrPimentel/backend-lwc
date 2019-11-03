@@ -6,9 +6,11 @@ const router = express.Router();
 router.use(authMiddleware);
 
 //Lista todos os usuarios
-router.get('/users', async(req, res) => {
+router.get('/users', async(req, res) => {  
   const users = await User.find({accRoot: true}).sort("name");
   return res.json(users);
 });
+
+
 
 module.exports = app => app.use(router);

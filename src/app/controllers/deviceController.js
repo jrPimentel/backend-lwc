@@ -21,8 +21,7 @@ router.post('/devices/add', async (req, res) => {
       if(await Device.findOne({ _id })) return res.status(400).send({ error: 'Device already exists'});
   
       const device = await Device.create(req.body);
-  
-  
+      
       return res.send({device});
 
     } catch (err){
@@ -31,4 +30,4 @@ router.post('/devices/add', async (req, res) => {
     }
   
   });
-module.exports = app => app.use('/auth', router);
+module.exports = app => app.use(router);

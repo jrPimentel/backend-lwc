@@ -1,40 +1,16 @@
 const mongoose = require('../../database');
+const bcrypt = require('bcryptjs');
 
 const DeviceSchema = new mongoose.Schema({
-
-  name: { 
-    type: String,
-    required: true,
-  },
-  qrCode: {
-    type: String,
-    required: false,
-    default: null,
-  },
-  qrState: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
-  company:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Company',
-    required: true,
-  },
-  user:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-
+  //nome para o dispositivo.
+  name: { type: String, required: true },
+  //Tipo do dispositivo.
+  type: { type: String, required: true },
+  //atribui usuario para o dispositivo.
+  user:{ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  //data que o dispositivo foi criado.
+  createdAt: { type: Date, default: Date.now },
 })
-
-
-const Device = mongoose.model('Devices', DeviceSchema);
-
-module.exports = Device;
+  const Device = mongoose.model('Device', DeviceSchema);
+  
+  module.exports = Device;

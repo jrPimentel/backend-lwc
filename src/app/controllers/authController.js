@@ -7,6 +7,7 @@ const mailer = require('../../modules/mailer');
 const authConfig = require('../../config/auth');
 
 const User = require('../models/user');
+const Company = require('../models/company');
 
 const router = express.Router();
 
@@ -39,14 +40,14 @@ router.post('/register', async (req, res) => {
 
 });
 
-router.post('/authenticate', async(req, res) => {
+router.post('/admin', async(req, res) => {
   try {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email }).select('password');
   
   if (!user) return res.status(400).send({ error: 'User not found'});
-
+  if(await User.findOne({ accRoot: false })) return res.status(400).send({ error: 'User not a root'});
   if(!await bcrypt.compare(password, user.password)) return res.status(400).send({ error: 'Invalid password'});
 
   user.password = undefined;
@@ -58,6 +59,30 @@ router.post('/authenticate', async(req, res) => {
   res.send({ 
     user, 
     token: generateToken({ id: user.id }),
+   });
+  } catch (err) {
+    next(err);
+  }
+});
+router.post('/company', async(req, res) => {
+  try {
+  const { email, password } = req.body;
+
+  const company = await Company.findOne({ email }).select('password');
+  
+  if (!company) return res.status(400).send({ error: 'company not found'});
+
+  if(!await bcrypt.compare(password, company.password)) return res.status(400).send({ error: 'Invalid password'});
+
+  company.password = undefined;
+
+  const token = jwt.sign({ id: company.id }, authConfig.secret, {
+    expiresIn: 86400,
+  })
+
+  res.send({ 
+    company, 
+    token: generateToken({ id: company.id }),
    });
   } catch (err) {
     next(err);
@@ -132,12 +157,6 @@ router.post('/reset_password', async(req, res) => {
   }catch (err) {
     res.status(400).send({ error: 'Cannot reset password, try again'})
   }
-});
-
-router.get('/users', async(req, res) => {
-const users = await User.find().sort("-createdAt");
-return res.json(users);
- 
 });
 
 module.exports = app => app.use('/auth', router);
