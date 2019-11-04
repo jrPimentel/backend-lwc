@@ -12,8 +12,6 @@ const UserSchema = new mongoose.Schema({
   passwordResetToken:{ type: String, select: false },
   //tempo de espiração do reset pass.
   passwordResetExpires:{ type: Date, select: false },
-  //Atribui uma compania para o usuario.
-  company:{ type: mongoose.Schema.Types.ObjectId, ref: 'Company', default: null, select: false },
   //Para tornar o user root.
   accRoot: { type: Boolean, default: false, select: false },
   //data de criação de conta. 
