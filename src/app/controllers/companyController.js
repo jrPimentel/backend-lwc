@@ -22,7 +22,7 @@ router.use(authMiddleware);
   router.post('/add', async (req, res) => {
     const { name } = req.body;
     try{
-      if(await User.findOne({ accRoot: false })) return res.status(400).send({ error: 'User not a root'});
+      // if(await User.findOne({ accRoot: false })) return res.status(400).send({ error: 'User not a root'});
       if(await Company.findOne({ name })) return res.status(400).send({ error: 'Company name already exists'});
 
       const company = await Company.create({ ...req.body, user: req.userId });
