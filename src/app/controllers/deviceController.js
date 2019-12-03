@@ -14,7 +14,7 @@ router.post("/devices/qrcode", (req, res, next) => {
   // Generate a QR Code for each device
   devices.map(device => {
     // Generate QR Code from text
-    let qr_png = qr.imageSync(device._id, { type: "png", size: 10, ec_level: "Q", margin: 2 });
+    let qr_png = qr.imageSync(device._id, { type: "png", size: 7, ec_level: "Q" });
 
     // Generate a name
     let qr_code_file_name = device._id + ".png";
@@ -31,23 +31,68 @@ router.post("/devices/qrcode", (req, res, next) => {
   const doc = new PDFDocument();
   doc.pipe(fs.createWriteStream("output.pdf"));
 
-  const { width } = doc.page;
+  const { width, height } = doc.page; // Get page's width
+  const lanworkLogoWidth = 150; // Default Lanwork logo width
+  const assetsPath = "src/app/assets";
 
-  //Add lanwork logo
-  doc.image("src/app/assets/lanwork.png", 10, 10, { width: 100 });
-  doc.image("src/app/assets/lanwork.png", width - 110, 10, { width: 100 });
+  //Positioning
+  let xImg = 0;
+  let yImg = 30;
+  let yTxt = 210;
 
-  doc.image("qrcode123.png", 0, 30, { fit: [200, 200] }).text("QRCode 123", 30, 210);
+  // Function to add Lanwork logo on the borders
+  const addLogo = () => {
+    //Top left
+    doc.image(`${assetsPath}/lanwork.png`, 10, 10, { width: lanworkLogoWidth });
+    //Top right
+    doc.image(`${assetsPath}/lanwork.png`, width - lanworkLogoWidth - 10, 10, {
+      width: lanworkLogoWidth
+    });
 
-  doc.image("qrcode123.png", 205, 30, { fit: [200, 200] }).text("QRCode 123", 235, 210);
+    //Bottom left
+    doc.image(`${assetsPath}/lanwork.png`, 10, height - 40, { width: lanworkLogoWidth });
+    //Bottom right
+    doc.image(`${assetsPath}/lanwork.png`, width - lanworkLogoWidth - 10, height - 40, {
+      width: lanworkLogoWidth
+    });
+  };
 
-  doc.image("qrcode123.png", 410, 30, { fit: [200, 200] }).text("QRCode 123", 440, 210);
+  //Add Lanwork logo
+  addLogo();
 
-  doc.image("qrcode123.png", 0, 240, { fit: [200, 200] }).text("QRCode 123", 30, 420);
+  /**
+   * Exemplo de como é cada passagem do loop
+   * doc.image("qrcode123.png", 0, 30, { fit: [200, 200] }).text("QRCode 123", 30, 210);
+   * doc.image("qrcode123.png", 205, 30, { fit: [200, 200] }).text("QRCode 123", 235, 210);
+   * doc.image("qrcode123.png", 410, 30, { fit: [200, 200] }).text("QRCode 123", 440, 210);
+   * doc.image("qrcode123.png", 0, 240, { fit: [200, 200] }).text("QRCode 123", 30, 420);
+   */
+  devices.map((device, index) => {
+    doc
+      .image(`${assetsPath}/qrcode${device._id}.png`, xImg, yImg, { fit: [200, 200] })
+      .text(device.name, xImg + 30, yTxt);
 
-  /*devices.map(device => {
-    doc.image(`src/app/assets/qrcode${device._id}.png`, { fit: [250, 250] });
-  });*/
+    xImg += 205;
+
+    // If gets to 3 qrs per line
+    if ((index + 1) % 3 === 0) {
+      yImg += 210;
+      yTxt += 210;
+      xImg = 0;
+    }
+
+    // If gets to 9 qrs per page
+    if ((index + 1) % 9 === 0) {
+      //Add new page with the logos
+      doc.addPage();
+      addLogo();
+
+      //Reset values
+      xImg = 0;
+      yImg = 30;
+      yTxt = 210;
+    }
+  });
 
   // Finalize PDF file
   doc.end();
