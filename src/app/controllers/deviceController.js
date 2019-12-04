@@ -97,7 +97,10 @@ router.post("/devices/qrcode", (req, res, next) => {
   // Finalize PDF file
   doc.end();
 
-  res.send({ status: "ok" });
+  //res.send({ status: "ok" });
+  const pdf = fs.readFileSync("output.pdf");
+  res.contentType("application/pdf");
+  res.send(pdf);
 });
 
 //Lista todos os devices
