@@ -7,17 +7,14 @@ const fs = require("fs");
 const PDFDocument = require("pdfkit");
 router.use(authMiddleware);
 
-router.post("/devices/qrcode", (req, res, next) => {
+router.get("/devices/qrcode", (req, res) => {
   // Get the text to generate QR code
   let { devices } = req.body;
 
   // Generate a QR Code for each device
   devices.map(device => {
-    // Generate QR Code from text
-    let qr_png = qr.imageSync(device._id, { type: "png", size: 7, ec_level: "Q" });
-
-    // Generate a name
-    let qr_code_file_name = device._id + ".png";
+    let qr_png = qr.imageSync(device._id, { type: "png", size: 7, ec_level: "Q" }); // Generate QR Code from text
+    let qr_code_file_name = device._id + ".png"; // Generate a name
 
     // Save the QR Code as a .png
     fs.writeFileSync("./src/app/assets/qrcode" + qr_code_file_name, qr_png, err => {
@@ -30,6 +27,7 @@ router.post("/devices/qrcode", (req, res, next) => {
   // Create a document
   const doc = new PDFDocument();
   doc.pipe(fs.createWriteStream("output.pdf"));
+  doc.pipe(res);
 
   const { width, height } = doc.page; // Get page's width
   const lanworkLogoWidth = 150; // Default Lanwork logo width
@@ -42,16 +40,14 @@ router.post("/devices/qrcode", (req, res, next) => {
 
   // Function to add Lanwork logo on the borders
   const addLogo = () => {
-    //Top left
+    //Top left and Top right
     doc.image(`${assetsPath}/lanwork.png`, 10, 10, { width: lanworkLogoWidth });
-    //Top right
     doc.image(`${assetsPath}/lanwork.png`, width - lanworkLogoWidth - 10, 10, {
       width: lanworkLogoWidth
     });
 
-    //Bottom left
+    //Bottom left and Bottom right
     doc.image(`${assetsPath}/lanwork.png`, 10, height - 40, { width: lanworkLogoWidth });
-    //Bottom right
     doc.image(`${assetsPath}/lanwork.png`, width - lanworkLogoWidth - 10, height - 40, {
       width: lanworkLogoWidth
     });
@@ -98,9 +94,12 @@ router.post("/devices/qrcode", (req, res, next) => {
   doc.end();
 
   //res.send({ status: "ok" });
-  const pdf = fs.readFileSync("output.pdf");
-  res.contentType("application/pdf");
-  res.send(pdf);
+  // const file = fs.createReadStream("./output.pdf");
+  // const stat = fs.statSync("output.pdf");
+  // res.setHeader("Content-Length", stat.size);
+  // res.setHeader("Content-Type", "application/pdf");
+  // res.setHeader("Content-Disposition", "attachment; filename=output.pdf");
+  // file.pipe(res);
 });
 
 //Lista todos os devices
