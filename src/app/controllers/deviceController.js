@@ -5,9 +5,10 @@ const router = express.Router();
 const qr = require("qr-image");
 const fs = require("fs");
 const PDFDocument = require("pdfkit");
+
 router.use(authMiddleware);
 
-router.get("/devices/qrcode", (req, res) => {
+router.post("/devices/qrcode", (req, res) => {
   // Get the text to generate QR code
   let { devices } = req.body;
 
@@ -27,7 +28,8 @@ router.get("/devices/qrcode", (req, res) => {
   // Create a document
   const doc = new PDFDocument();
   doc.pipe(fs.createWriteStream("output.pdf"));
-  doc.pipe(res);
+  res.setHeader("Content-disposition", 'attachment; filename="output.pdf"');
+  res.setHeader("Content-type", "application/pdf");
 
   const { width, height } = doc.page; // Get page's width
   const lanworkLogoWidth = 150; // Default Lanwork logo width
@@ -91,15 +93,8 @@ router.get("/devices/qrcode", (req, res) => {
   });
 
   // Finalize PDF file
+  doc.pipe(res);
   doc.end();
-
-  //res.send({ status: "ok" });
-  // const file = fs.createReadStream("./output.pdf");
-  // const stat = fs.statSync("output.pdf");
-  // res.setHeader("Content-Length", stat.size);
-  // res.setHeader("Content-Type", "application/pdf");
-  // res.setHeader("Content-Disposition", "attachment; filename=output.pdf");
-  // file.pipe(res);
 });
 
 //Lista todos os devices
