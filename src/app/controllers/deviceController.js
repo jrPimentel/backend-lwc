@@ -8,7 +8,9 @@ const PDFDocument = require("pdfkit");
 
 router.use(authMiddleware);
 
+//Generate and send a PDF with the QR Codes
 router.post("/devices/qrcode", (req, res) => {
+  //TODO: Delete the qrcodes images and the pdf after it was send
   // Get the text to generate QR code
   let { devices } = req.body;
 
@@ -102,6 +104,7 @@ router.get("/devices", async (req, res) => {
   const devices = await Device.find().sort("-createdAt");
   return res.json(devices);
 });
+
 //add device
 router.post("/devices/add", async (req, res) => {
   const { _id } = req.body;
@@ -117,4 +120,21 @@ router.post("/devices/add", async (req, res) => {
     return res.status(400).send({ error: "Registration failed" });
   }
 });
+
+router.delete("/devices/:deviceId", async (req, res) => {
+  const { deviceId } = req.params;
+
+  try {
+    if (await Device.findOne({ _id: deviceId })) {
+      await Device.findOneAndDelete({ _id: deviceId });
+
+      return res.send({ success: true });
+    } else {
+      return res.status(400).send({ success: false, error: "Device not found" });
+    }
+  } catch (err) {
+    return res.status(400).send({ success: false, error: "Error when deleting device" });
+  }
+});
+
 module.exports = app => app.use(router);
