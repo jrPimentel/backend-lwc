@@ -8,11 +8,17 @@ const PDFDocument = require("pdfkit");
 
 router.use(authMiddleware);
 
+const createUniqueIdPDF = () =>
+  "_" +
+  Math.random()
+    .toString(36)
+    .substr(2, 9);
+
 //Generate and send a PDF with the QR Codes
 router.post("/devices/qrcode", (req, res) => {
-  //TODO: Delete the qrcodes images and the pdf after it was send
   // Get the text to generate QR code
   let { devices } = req.body;
+  const assetsPath = "src/app/assets";
 
   // Generate a QR Code for each device
   devices.map(device => {
@@ -20,7 +26,7 @@ router.post("/devices/qrcode", (req, res) => {
     let qr_code_file_name = device._id + ".png"; // Generate a name
 
     // Save the QR Code as a .png
-    fs.writeFileSync("./src/app/assets/qrcode" + qr_code_file_name, qr_png, err => {
+    fs.writeFileSync(`${assetsPath}/qrcode${qr_code_file_name}`, qr_png, err => {
       if (err) {
         console.log(err);
       }
@@ -29,13 +35,13 @@ router.post("/devices/qrcode", (req, res) => {
 
   // Create a document
   const doc = new PDFDocument();
-  doc.pipe(fs.createWriteStream("output.pdf"));
+  const docName = `output${createUniqueIdPDF()}`;
+  doc.pipe(fs.createWriteStream(`${assetsPath}/pdfs/${docName}.pdf`));
   res.setHeader("Content-disposition", 'attachment; filename="output.pdf"');
   res.setHeader("Content-type", "application/pdf");
 
   const { width, height } = doc.page; // Get page's width
   const lanworkLogoWidth = 150; // Default Lanwork logo width
-  const assetsPath = "src/app/assets";
 
   //Positioning
   let xImg = 0;
@@ -97,6 +103,20 @@ router.post("/devices/qrcode", (req, res) => {
   // Finalize PDF file
   doc.pipe(res);
   doc.end();
+
+  try {
+    // Delete qrcode images
+    devices.map(device => {
+      fs.unlinkSync(`${assetsPath}/qrcode${device._id}.png`);
+    });
+
+    // Delete pdf
+    fs.unlinkSync(`${assetsPath}/pdfs/${docName}.pdf`);
+  } catch (err) {
+    res
+      .status(400)
+      .send({ success: false, error: "Error when deleting a QR Code image or the PDF" });
+  }
 });
 
 //Lista todos os devices
@@ -121,6 +141,7 @@ router.post("/devices/add", async (req, res) => {
   }
 });
 
+//Delete device
 router.delete("/devices/:deviceId", async (req, res) => {
   const { deviceId } = req.params;
 
