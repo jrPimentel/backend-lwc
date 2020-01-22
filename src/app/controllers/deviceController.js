@@ -111,7 +111,7 @@ router.post("/devices/qrcode", (req, res) => {
     });
 
     // Delete pdf
-    fs.unlinkSync(`${assetsPath}/pdfs/${docName}.pdf`);
+    //fs.unlinkSync(`${assetsPath}/pdfs/${docName}.pdf`);
   } catch (err) {
     return res
       .status(400)
