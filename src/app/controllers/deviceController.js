@@ -113,7 +113,7 @@ router.post("/devices/qrcode", (req, res) => {
     // Delete pdf
     fs.unlinkSync(`${assetsPath}/pdfs/${docName}.pdf`);
   } catch (err) {
-    res
+    return res
       .status(400)
       .send({ success: false, error: "Error when deleting a QR Code image or the PDF" });
   }
