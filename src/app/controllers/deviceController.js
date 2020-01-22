@@ -45,8 +45,8 @@ router.post("/devices/qrcode", (req, res) => {
 
   //Positioning
   let xImg = 0;
-  let yImg = 30;
-  let yTxt = 210;
+  let yImg = 35;
+  let yTxt = 220;
 
   // Function to add Lanwork logo on the borders
   const addLogo = () => {
@@ -76,7 +76,7 @@ router.post("/devices/qrcode", (req, res) => {
   devices.map((device, index) => {
     doc
       .image(`${assetsPath}/qrcode${device._id}.png`, xImg, yImg, { fit: [200, 200] })
-      .text(device.name, xImg + 30, yTxt);
+      .text(device.name, xImg + 25, yTxt);
 
     xImg += 205;
 
