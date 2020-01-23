@@ -95,8 +95,8 @@ router.post("/devices/qrcode", (req, res) => {
 
       //Reset values
       xImg = 0;
-      yImg = 30;
-      yTxt = 210;
+      yImg = 35;
+      yTxt = 220;
     }
   });
 
