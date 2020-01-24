@@ -125,7 +125,9 @@ router.get("/devices", async (req, res) => {
   const devices = await Device.find().sort("-createdAt");
   return res.json(devices);
 });
+
 //TODO: Get devices by company
+//List
 
 //add device
 router.post("/devices/add", async (req, res) => {
