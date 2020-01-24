@@ -16,6 +16,7 @@ const createUniqueIdPDF = () =>
 
 //Generate and send a PDF with the QR Codes
 router.post("/devices/qrcode", (req, res) => {
+  //TODO: Delete PDFs
   // Get the text to generate QR code
   let { devices } = req.body;
   const assetsPath = "src/app/assets";
@@ -124,6 +125,7 @@ router.get("/devices", async (req, res) => {
   const devices = await Device.find().sort("-createdAt");
   return res.json(devices);
 });
+//TODO: Get devices by company
 
 //add device
 router.post("/devices/add", async (req, res) => {
@@ -148,8 +150,9 @@ router.delete("/devices/:deviceId", async (req, res) => {
   try {
     if (await Device.findOne({ _id: deviceId })) {
       await Device.findOneAndDelete({ _id: deviceId });
+      const devices = await Device.find().sort("-createdAt");
 
-      return res.send({ success: true });
+      return res.send({ success: true, devices });
     } else {
       return res.status(400).send({ success: false, error: "Device not found" });
     }
