@@ -138,8 +138,9 @@ router.post("/devices/add", async (req, res) => {
       return res.status(400).send({ error: "Device already exists" });
 
     const device = await Device.create(req.body);
+    const devices = await Device.find().sort("-createdAt");
 
-    return res.send({ device });
+    return res.send({ device, devices });
   } catch (err) {
     return res.status(400).send({ error: "Registration failed" });
   }
