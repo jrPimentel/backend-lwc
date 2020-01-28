@@ -60,7 +60,7 @@ router.post("/admin", async (req, res) => {
     next(err);
   }
 });
-router.post("/company", async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
