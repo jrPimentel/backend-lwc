@@ -16,14 +16,18 @@ const UserSchema = new mongoose.Schema({
   company: { type: mongoose.Schema.Types.ObjectId, ref: "Company", required: true },
   //Para tornar o user root.
   accRoot: { type: Boolean, default: false, select: false, required: true },
+  //Para tornar o user root.
+  firstAcc: { type: Boolean, default: true, select: false, required: true },
   //data de criação de conta.
   createdAt: { type: Date, default: Date.now }
 });
+
 UserSchema.pre("save", async function(next) {
   const hash = await bcrypt.hash(this.password, 10);
   this.password = hash;
   next();
 });
+
 const User = mongoose.model("User", UserSchema);
 
 module.exports = User;
