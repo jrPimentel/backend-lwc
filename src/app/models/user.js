@@ -15,9 +15,11 @@ const UserSchema = new mongoose.Schema({
   //atribui empresa para usuário.
   company: { type: mongoose.Schema.Types.ObjectId, ref: "Company", required: true },
   //Para tornar o user root.
-  accRoot: { type: Boolean, default: false, select: false, required: true },
-  //Para tornar o user root.
-  firstAcc: { type: Boolean, default: true, select: false, required: true },
+  accRoot: { type: Boolean, default: false, required: true },
+  //Primeiro acesso
+  firstAcc: { type: Boolean, default: true, required: true },
+  //Ativo ou não
+  active: { type: Boolean, default: true, select: false, required: true },
   //data de criação de conta.
   createdAt: { type: Date, default: Date.now }
 });

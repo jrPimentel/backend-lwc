@@ -28,9 +28,9 @@ router.post("/register", async (req, res) => {
 
     user.password = undefined;
 
-    return res.send({ user, token: generateToken({ id: user.id }) });
+    return res.send({ success: true, user, token: generateToken({ id: user.id }) });
   } catch (err) {
-    return res.status(400).send({ error: "Registration failed" });
+    return res.status(400).send({ success: false, error: "Registration failed" });
   }
 });
 
@@ -64,25 +64,32 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const company = await Company.findOne({ email }).select("password");
+    const user = await User.findOne({ email, active: true, accRoot: true });
 
-    if (!company) return res.status(400).send({ error: "company not found" });
+    //Verifica se o usuário existe
+    if (!user) return res.status(400).send({ success: false, error: "User not found" });
 
-    if (!(await bcrypt.compare(password, company.password)))
-      return res.status(400).send({ error: "Invalid password" });
+    //Verifica se é o primeiro acesso
+    if (user.firstAcc)
+      return res.status(400).send({ success: false, error: "User didn't created a password" });
 
-    company.password = undefined;
+    if (!(await bcrypt.compare(password, user.password)))
+      return res.status(400).send({ success: false, error: "Invalid password" });
 
-    const token = jwt.sign({ id: company.id }, authConfig.secret, {
+    user.password = undefined;
+
+    const token = jwt.sign({ id: user.id }, authConfig.secret, {
       expiresIn: 86400
     });
 
     res.send({
-      company,
-      token: generateToken({ id: company.id })
+      success: true,
+      user,
+      token: generateToken({ id: user.id })
     });
   } catch (err) {
-    next(err);
+    console.log(err);
+    //next(err);
   }
 });
 

@@ -18,4 +18,8 @@ router.get("/users/:companyId", async (req, res) => {
   return res.json(users);
 });
 
+//TODO: Add user
+//TODO: Delete user
+//TODO: Update user
+
 module.exports = app => app.use(router);
