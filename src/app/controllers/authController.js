@@ -64,7 +64,10 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email, active: true, accRoot: true });
+    const user = await User.findOne({ email, active: true }).select(
+      "accRoot firstAcc email password company"
+    );
+    console.log(user, user.firsAcc);
 
     //Verifica se o usuário existe
     if (!user) return res.status(400).send({ success: false, error: "User not found" });
@@ -73,14 +76,13 @@ router.post("/login", async (req, res) => {
     if (user.firstAcc)
       return res.status(400).send({ success: false, error: "User didn't created a password" });
 
+    //Verifica se é um usuário root
+    if (!user.accRoot) return res.status(400).send({ success: false, error: "User not a root" });
+
     if (!(await bcrypt.compare(password, user.password)))
       return res.status(400).send({ success: false, error: "Invalid password" });
 
     user.password = undefined;
-
-    const token = jwt.sign({ id: user.id }, authConfig.secret, {
-      expiresIn: 86400
-    });
 
     res.send({
       success: true,
