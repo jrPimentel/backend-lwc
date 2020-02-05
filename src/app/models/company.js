@@ -7,7 +7,7 @@ const CompanySchema = new mongoose.Schema({
   //Local compania.
   location: { type: String, required: false },
   //usuario admin da compania.
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  rootUser: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   //data de criação da compania.
   createdAt: { type: Date, default: Date.now }
 });

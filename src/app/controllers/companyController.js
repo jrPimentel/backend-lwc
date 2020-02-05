@@ -21,18 +21,31 @@ router.get("/:companyId", async (req, res) => {
 });
 
 //add company
-router.post("/add", async (req, res) => {
-  const { name } = req.body;
-  try {
-    // if(await User.findOne({ accRoot: false })) return res.status(400).send({ error: 'User not a root'});
-    if (await Company.findOne({ name }))
-      return res.status(400).send({ error: "Company name already exists" });
+router.post("/", async (req, res) => {
+  const { email, name, location } = req.body;
 
-    const company = await Company.create({ ...req.body, user: req.userId });
+  try {
+    // Check if the email is already been used another user
+    if (await User.findOne({ email }))
+      return res.status(400).send({ success: false, error: "Email already in use" });
+
+    const company = await Company.create({ name, location });
     const companies = await Company.find().sort("name");
 
-    return res.send({ company, companies });
+    const user = await User.create({
+      name: `Admin ${name}`,
+      email,
+      password: " ",
+      accRoot: true,
+      company: company._id
+    });
+
+    await Company.updateOne({ _id: company._id }, { name, location, rootUser: user._id });
+
+    return res.send({ success: true, company, companies });
   } catch (err) {
+    console.log(err);
+
     return res.status(400).send({ error: "Registration failed" });
   }
 });
