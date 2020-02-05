@@ -83,7 +83,7 @@ router.put("/:companyId", async (req, res) => {
       // });
       await Company.updateOne({ _id: companyId }, req.body);
       const company = await Company.find({ _id: companyId });
-      const companies = await Company.find().sort("name");
+      const companies = await getCompanies();
 
       res.send({ success: true, company, companies });
     } else {
