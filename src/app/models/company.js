@@ -7,7 +7,7 @@ const CompanySchema = new mongoose.Schema({
   //Local compania.
   location: { type: String, required: false },
   //usuario admin da compania.
-  rootUser: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  rootUser: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false },
   //Ativo ou não
   active: { type: Boolean, default: true, select: false, required: true },
   //data de criação da compania.

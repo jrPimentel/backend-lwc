@@ -7,8 +7,7 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
-//Listar todas.
-router.get("/", async (req, res) => {
+const getCompanies = async () => {
   const listCompanies = await Company.find().sort("name");
 
   const promises = listCompanies.map(async company => {
@@ -19,7 +18,14 @@ router.get("/", async (req, res) => {
     return compJson;
   });
 
-  return res.json(await Promise.all(promises));
+  return await Promise.all(promises);
+};
+
+//Listar todas.
+router.get("/", async (req, res) => {
+  const listCompanies = await getCompanies();
+
+  return res.json(listCompanies);
   // return res.status(200).send({ success: true, companies: await Promise.all(promises) });
 });
 //Selecionar uma compania.
@@ -40,7 +46,7 @@ router.post("/", async (req, res) => {
       return res.status(400).send({ success: false, error: "Email already in use" });
 
     // Create the company without the user
-    await Company.create({ name, location });
+    let company = await Company.create({ name, location });
 
     //Create the user
     const user = await User.create({
@@ -52,13 +58,13 @@ router.post("/", async (req, res) => {
     });
 
     // Add the user id to the company
-    const company = await Company.updateOne(
-      { _id: company._id },
-      { name, location, rootUser: user._id }
-    );
-    const companies = await Company.find().sort("name");
+    await Company.updateOne({ _id: company._id }, { name, location, rootUser: user._id });
+
+    company = await Company.findOne({ _id: company._id });
+    const companies = await getCompanies();
 
     return res.send({ success: true, company, companies });
+    // return res.send({ success: true, companies });
   } catch (err) {
     console.log(err);
 
