@@ -10,7 +10,17 @@ router.use(authMiddleware);
 //Listar todas.
 router.get("/", async (req, res) => {
   const listCompanies = await Company.find().sort("name");
-  return res.json(listCompanies);
+
+  const promises = listCompanies.map(async company => {
+    const { email } = await User.findOne({ _id: company.rootUser });
+    const compJson = company.toJSON();
+    compJson.email = email;
+
+    return compJson;
+  });
+
+  return res.json(await Promise.all(promises));
+  // return res.status(200).send({ success: true, companies: await Promise.all(promises) });
 });
 //Selecionar uma compania.
 router.get("/:companyId", async (req, res) => {
@@ -29,9 +39,10 @@ router.post("/", async (req, res) => {
     if (await User.findOne({ email }))
       return res.status(400).send({ success: false, error: "Email already in use" });
 
-    const company = await Company.create({ name, location });
-    const companies = await Company.find().sort("name");
+    // Create the company without the user
+    await Company.create({ name, location });
 
+    //Create the user
     const user = await User.create({
       name: `Admin ${name}`,
       email,
@@ -40,13 +51,18 @@ router.post("/", async (req, res) => {
       company: company._id
     });
 
-    await Company.updateOne({ _id: company._id }, { name, location, rootUser: user._id });
+    // Add the user id to the company
+    const company = await Company.updateOne(
+      { _id: company._id },
+      { name, location, rootUser: user._id }
+    );
+    const companies = await Company.find().sort("name");
 
     return res.send({ success: true, company, companies });
   } catch (err) {
     console.log(err);
 
-    return res.status(400).send({ error: "Registration failed" });
+    return res.status(400).send({ success: false, error: "Registration failed" });
   }
 });
 
@@ -73,6 +89,7 @@ router.put("/:companyId", async (req, res) => {
 });
 
 //delete company
+//TODO: Also delete the user
 router.delete("/:companyId", async (req, res) => {
   const { companyId } = req.params;
 
