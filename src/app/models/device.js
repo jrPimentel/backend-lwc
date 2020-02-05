@@ -4,7 +4,8 @@ const DeviceSchema = new mongoose.Schema({
   //nome para o dispositivo.
   name: { type: String, required: true },
   //Tipo do dispositivo.
-  type: { type: mongoose.Schema.Types.ObjectId, ref: "Type", required: true },
+  // type: { type: mongoose.Schema.Types.ObjectId, ref: "Type", required: true },
+  type: { type: String, required: true },
   //atribui empresa para o dispositivo.
   company: { type: mongoose.Schema.Types.ObjectId, ref: "Company", required: true },
   //data que o dispositivo foi criado.
