@@ -1,5 +1,6 @@
 const express = require("express");
 const authMiddleware = require("../middlewares/auth");
+const sendTokenToEmail = require("../utils/sendTokenToEmail");
 
 const Company = require("../models/company");
 const User = require("../models/user");
@@ -57,6 +58,9 @@ router.post("/", async (req, res) => {
       company: company._id
     });
 
+    //Send email to create password
+    await sendTokenToEmail(email);
+
     // Add the user id to the company
     await Company.updateOne({ _id: company._id }, { name, location, rootUser: user._id });
 
@@ -78,9 +82,6 @@ router.put("/:companyId", async (req, res) => {
 
   try {
     if (await Company.find({ _id: companyId })) {
-      // const company = await Company.findOneAndUpdate({ _id: companyId }, req.body, {
-      //   returnNewDocument: true
-      // });
       await Company.updateOne({ _id: companyId }, req.body);
       const company = await Company.find({ _id: companyId });
       const companies = await getCompanies();

@@ -1,6 +1,8 @@
 const express = require("express");
 const authMiddleware = require("../middlewares/auth");
 const User = require("../models/user");
+const sendTokenToEmail = require("../utils/sendTokenToEmail");
+
 const router = express.Router();
 
 router.use(authMiddleware);
@@ -40,6 +42,11 @@ router.post("/users", async (req, res) => {
 });
 
 //TODO: Delete user
+router.post("/users/check_password", async (req, res) => {
+  const { email } = req.body;
+
+  res.send({ info: await sendTokenToEmail(email) });
+});
 //TODO: Update user
 
 module.exports = app => app.use(router);
