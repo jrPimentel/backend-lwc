@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
   //guarda o email
   email: { type: String, unique: true, required: true, lowercase: true },
   //guarda a senha.
-  password: { type: String, required: true, select: false },
+  password: { type: String, required: true, default: " ", select: false },
   //token de reset pass.
   passwordResetToken: { type: String, select: false },
   //tempo de espiração do reset pass.

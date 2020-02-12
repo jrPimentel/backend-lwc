@@ -9,7 +9,8 @@ router.use(authMiddleware);
 
 //Lista todos os usuarios
 router.get("/users", async (req, res) => {
-  const users = await User.find({ accRoot: true }).sort("name");
+  // const users = await User.find({ accRoot: true }).sort("name");
+  const users = await User.find().sort("name");
   return res.json(users);
 });
 
@@ -20,7 +21,6 @@ router.get("/users/:companyId", async (req, res) => {
   return res.json(users);
 });
 
-//TODO: Add user
 // Create user
 router.post("/users", async (req, res) => {
   const { email } = req.body;
@@ -31,9 +31,12 @@ router.post("/users", async (req, res) => {
 
     const user = await User.create(req.body);
 
+    //Send email to create password
+    await sendTokenToEmail(email);
+
     user.password = undefined;
 
-    return res.send({ success: true, user });
+    return res.send({ success: true, user, users: await User.find().sort("name") });
   } catch (err) {
     console.log(err);
 
@@ -42,11 +45,32 @@ router.post("/users", async (req, res) => {
 });
 
 //TODO: Delete user
-router.post("/users/check_password", async (req, res) => {
-  const { email } = req.body;
-
-  res.send({ info: await sendTokenToEmail(email) });
-});
 //TODO: Update user
+
+router.post("/users/update", async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+
+    await User.findOneAndUpdate(
+      { passwordResetToken: token },
+      { $set: { passwordResetExpires: now } }
+    );
+
+    const user = await User.findOne({
+      passwordResetToken: token
+    }).select("passwordResetExpires createdAt");
+
+    console.log(user.passwordResetExpires.toString());
+    console.log(user.createdAt instanceof Date);
+
+    return res.send({ success: true, user });
+  } catch (error) {
+    console.log(error);
+    res.send({ success: false });
+  }
+});
 
 module.exports = app => app.use(router);

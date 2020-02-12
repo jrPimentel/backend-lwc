@@ -67,7 +67,6 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ email, active: true }).select(
       "accRoot firstAcc email password company"
     );
-    console.log(user, user.firsAcc);
 
     //Verifica se o usuário existe
     if (!user) return res.status(400).send({ success: false, error: "User not found" });
@@ -139,10 +138,12 @@ router.post("/forgot_password", async (req, res) => {
 });
 
 router.post("/reset_password", async (req, res) => {
-  const { email, token, password } = req.body;
+  const { token, password } = req.body;
 
   try {
-    const user = await User.findOne({ email }).select("+passwordResetToken passwordResetExpires");
+    const user = await User.findOne({ passwordResetToken: token }).select(
+      "+passwordResetToken passwordResetExpires"
+    );
 
     if (!user) return res.status(400).send({ error: "User not found" });
 
@@ -154,12 +155,31 @@ router.post("/reset_password", async (req, res) => {
       return res.status(400).send({ error: "Token expired, generate a new one" });
 
     user.password = password;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
 
     await user.save();
 
-    res.send();
+    res.status(200).send({ success: true });
   } catch (err) {
     res.status(400).send({ error: "Cannot reset password, try again" });
+  }
+});
+
+router.post("/check_token", async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const user = await User.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: new Date() }
+    }).select("+passwordResetExpires createdAt");
+
+    res.send({ success: user ? true : false, user });
+  } catch (err) {
+    console.log(err);
+
+    res.status(400).send({ success: false, err });
   }
 });
 
