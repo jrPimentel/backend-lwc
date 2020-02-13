@@ -112,7 +112,6 @@ router.delete("/:companyId", async (req, res) => {
   } catch (err) {
     return res.status(400).send({ success: false, error: "Error when deleting company" });
   }
-  res.send({ ok: true });
 });
 
 module.exports = app => app.use("/company", router);
