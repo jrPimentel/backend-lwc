@@ -1,0 +1,2 @@
+module.exports =
+  "Basic bWF0aGV1c0BsYW53b3JrLmNvbS5ici90b2tlbjpKajZ1cXJTQmVZVmpFcUdaMXpsYjA0WlRpQ0RuN2lSMTdERzdOY2lU";

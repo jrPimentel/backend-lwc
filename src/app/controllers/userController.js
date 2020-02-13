@@ -1,4 +1,5 @@
 const express = require("express");
+const axios = require("axios");
 const authMiddleware = require("../middlewares/auth");
 
 //Models
@@ -6,6 +7,7 @@ const User = require("../models/user");
 const Company = require("../models/company");
 //Utils
 const sendTokenToEmail = require("../utils/sendTokenToEmail");
+const token = require("../utils/zendeskToken");
 
 const router = express.Router();
 
@@ -31,6 +33,17 @@ router.post("/users", async (req, res) => {
   try {
     if (await User.findOne({ email }))
       return res.status(400).send({ error: "User already exists" });
+
+    const { data } = await axios.get(
+      `https://lanwork.zendesk.com/api/v2/search.json?query=${email}`,
+      {
+        headers: { Authorization: token }
+      }
+    );
+    console.log(data);
+
+    if (data.count === 0)
+      return res.status(400).send({ success: false, error: "User doesn't have a Zendesk account" });
 
     const user = await User.create(req.body);
 
