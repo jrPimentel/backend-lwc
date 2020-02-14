@@ -55,7 +55,7 @@ router.post("/", async (req, res) => {
       }
     );
 
-    if (data.count > 0)
+    if (data.count === 0)
       return res.status(400).send({ success: false, error: "User doesn't have a Zendesk account" });
 
     // Create the company without the user
