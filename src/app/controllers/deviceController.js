@@ -128,6 +128,11 @@ router.get("/devices", async (req, res) => {
 
 //TODO: Get devices by company
 //List
+router.get("/devices/:companyId", async (req, res) => {
+  const { companyId } = req.params;
+  const devices = await Device.find({ company: companyId }).sort("name");
+  return res.json(devices);
+});
 
 //add device
 router.post("/devices/add", async (req, res) => {

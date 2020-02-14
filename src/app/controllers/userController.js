@@ -40,7 +40,6 @@ router.post("/users", async (req, res) => {
         headers: { Authorization: token }
       }
     );
-    console.log(data);
 
     if (data.count === 0)
       return res.status(400).send({ success: false, error: "User doesn't have a Zendesk account" });

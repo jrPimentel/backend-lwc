@@ -33,9 +33,8 @@ router.get("/", async (req, res) => {
 });
 //Selecionar uma compania.
 router.get("/:companyId", async (req, res) => {
-  const { name } = req.body;
-  const showCompanies = await Company.findOne(name);
-  console.log(showCompanies);
+  const { companyId } = req.params;
+  const showCompanies = await Company.findOne({ _id: companyId });
   return res.json(showCompanies);
 });
 
@@ -108,7 +107,7 @@ router.put("/:companyId", async (req, res) => {
 });
 
 //delete company
-//TODO: Also delete the user
+//TODO: Also delete the user and devices
 router.delete("/:companyId", async (req, res) => {
   const { companyId } = req.params;
 
