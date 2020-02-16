@@ -1,11 +1,15 @@
 const express = require("express");
-const authMiddleware = require("../middlewares/auth");
-const Device = require("../models/device");
 const router = express.Router();
 const qr = require("qr-image");
 const fs = require("fs");
 const PDFDocument = require("pdfkit");
+const jwt = require("jsonwebtoken");
+const secretKey = require("../../config/auth").secret;
 
+//Models
+const Device = require("../models/device");
+//Middleware
+const authMiddleware = require("../middlewares/auth");
 router.use(authMiddleware);
 
 const createUniqueIdPDF = () =>
@@ -13,6 +17,21 @@ const createUniqueIdPDF = () =>
   Math.random()
     .toString(36)
     .substr(2, 9);
+
+const getDevices = async authorization => {
+  const token = authorization.replace("Bearer ", "");
+  let devices = [];
+
+  //Check if user is admin
+  const { admin, user } = jwt.verify(token, secretKey);
+  if (admin) {
+    devices = await Device.find().sort("-createdAt");
+  } else {
+    devices = await Device.find({ company: user.company }).sort("-createdAt");
+  }
+
+  return devices;
+};
 
 //Generate and send a PDF with the QR Codes
 router.post("/devices/qrcode", (req, res) => {
@@ -137,16 +156,18 @@ router.get("/devices/:companyId", async (req, res) => {
 //add device
 router.post("/devices/add", async (req, res) => {
   const { _id } = req.body;
+  const { authorization } = req.headers;
 
   try {
     if (await Device.findOne({ _id }))
       return res.status(400).send({ error: "Device already exists" });
 
     const device = await Device.create(req.body);
-    const devices = await Device.find().sort("-createdAt");
 
-    return res.send({ device, devices });
+    return res.send({ device, devices: await getDevices(authorization) });
   } catch (err) {
+    console.log(err);
+
     return res.status(400).send({ error: "Registration failed" });
   }
 });

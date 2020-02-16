@@ -86,7 +86,7 @@ router.post("/login", async (req, res) => {
     res.send({
       success: true,
       user,
-      token: generateToken({ id: user.id })
+      token: generateToken({ id: user.id, admin: email === "admin@lanwork.com.br", user })
     });
   } catch (err) {
     console.log(err);
@@ -169,14 +169,12 @@ router.post("/reset_password", async (req, res) => {
 
 router.post("/check_token", async (req, res) => {
   const { token } = req.body;
+  const { authorization } = req.headers;
 
   try {
-    const user = await User.findOne({
-      passwordResetToken: token,
-      passwordResetExpires: { $gt: new Date() }
-    }).select("+passwordResetExpires createdAt");
+    const decode = jwt.verify(token, authConfig.secret);
 
-    res.send({ success: user ? true : false, user });
+    res.send({ success: true, admin: decode });
   } catch (err) {
     console.log(err);
 
