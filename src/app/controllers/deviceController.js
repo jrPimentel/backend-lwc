@@ -25,9 +25,9 @@ const getDevices = async authorization => {
   //Check if user is admin
   const { admin, user } = jwt.verify(token, secretKey);
   if (admin) {
-    devices = await Device.find().sort("-createdAt");
+    devices = await Device.find().sort("name");
   } else {
-    devices = await Device.find({ company: user.company }).sort("-createdAt");
+    devices = await Device.find({ company: user.company }).sort("name");
   }
 
   return devices;
@@ -175,11 +175,12 @@ router.post("/devices/add", async (req, res) => {
 //Delete device
 router.delete("/devices/:deviceId", async (req, res) => {
   const { deviceId } = req.params;
+  const { authorization } = req.headers;
 
   try {
     if (await Device.findOne({ _id: deviceId })) {
       await Device.findOneAndDelete({ _id: deviceId });
-      const devices = await Device.find().sort("-createdAt");
+      const devices = await getDevices(authorization);
 
       return res.send({ success: true, devices });
     } else {
