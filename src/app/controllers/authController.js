@@ -169,12 +169,14 @@ router.post("/reset_password", async (req, res) => {
 
 router.post("/check_token", async (req, res) => {
   const { token } = req.body;
-  const { authorization } = req.headers;
 
   try {
-    const decode = jwt.verify(token, authConfig.secret);
+    const user = await User.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: new Date() }
+    }).select("+passwordResetExpires createdAt");
 
-    res.send({ success: true, admin: decode });
+    res.send({ success: user ? true : false, user });
   } catch (err) {
     console.log(err);
 
