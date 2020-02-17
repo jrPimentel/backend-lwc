@@ -141,11 +141,10 @@ router.post("/devices/qrcode", (req, res) => {
 
 //Lista todos os devices
 router.get("/devices", async (req, res) => {
-  const devices = await Device.find().sort("-createdAt");
+  const devices = await Device.find().sort("name");
   return res.json(devices);
 });
 
-//TODO: Get devices by company
 //List
 router.get("/devices/:companyId", async (req, res) => {
   const { companyId } = req.params;
@@ -164,11 +163,38 @@ router.post("/devices/add", async (req, res) => {
 
     const device = await Device.create(req.body);
 
-    return res.send({ device, devices: await getDevices(authorization) });
+    return res.send({ success: true, device, devices: await getDevices(authorization) });
   } catch (err) {
     console.log(err);
 
     return res.status(400).send({ error: "Registration failed" });
+  }
+});
+
+//Edit device
+router.put("/devices/:deviceId", async (req, res) => {
+  const { deviceId } = req.params;
+  const { authorization } = req.headers;
+
+  try {
+    if ((await Device.find({ _id: deviceId })).length <= 0)
+      return res
+        .status(400)
+        .send({
+          success: false,
+          error: "Device not found",
+          devices: await getDevices(authorization)
+        });
+
+    await Device.updateOne({ _id: deviceId }, req.body);
+    const device = await Device.find({ _id: deviceId });
+    const devices = await getDevices(authorization);
+
+    res.status(200).send({ success: true, device, devices });
+  } catch (err) {
+    console.log(err);
+
+    res.status(400).send({ success: false, error: "Error when updating device" });
   }
 });
 
